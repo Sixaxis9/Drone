@@ -4,6 +4,8 @@
 *  Author: mdotg
 */
 
+//TO-DO Try to only apply I while in band
+
 #include "PID.h"
 #include "Timer.h"
 #include "IMU.h"
@@ -50,7 +52,7 @@ void PID_Pitch(){
 	pid_d = k_pitch[2]*((error_pitch - error_pitch_previous)/delta_time_PID);
 
 	/*The final PID values is the sum of each of this 3 parts*/
-	PID[0] = pid_p + pid_i + pid_d;
+	PID[0] = pid_p + pid_i - pid_d;
 	
 	last_sample_pitch = system_tick_MG + 0.0000041*TCNT0;
 
@@ -74,7 +76,7 @@ void PID_Roll(){
 	pid_d = k_roll[2]*((error_roll - error_roll_previous)/delta_time_PID);
 
 	/*The final PID values is the sum of each of this 3 parts*/
-	PID[1] = pid_p + pid_i + pid_d;
+	PID[1] = pid_p + pid_i - pid_d;
 	
 	last_sample_roll = system_tick_MG + 0.0000041*TCNT0;
 
@@ -82,7 +84,7 @@ void PID_Roll(){
 
 void PID_Yaw(){
 
-	error_yaw = map_values(AngleX, 0, 90, 0, 100) - yaw;
+	error_yaw = map_values(gyroz, 0, 90, 0, 100) - yaw;
 
 	/*Next the proportional value of the PID is just a proportional constant
 	*multiplied by the error*/
@@ -98,7 +100,7 @@ void PID_Yaw(){
 	pid_d = k_yaw[2]*((error_yaw - error_yaw_previous)/delta_time_PID);
 
 	/*The final PID values is the sum of each of this 3 parts*/
-	PID[2] = pid_p + pid_i + pid_d;
+	PID[2] = pid_p + pid_i - pid_d;
 	
 	last_sample_yaw = system_tick_MG + 0.0000041*TCNT0;
 
