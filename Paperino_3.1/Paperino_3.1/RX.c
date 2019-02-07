@@ -8,7 +8,6 @@
 #include "Timer.h"
 
 
-
 volatile uint8_t throttle = 0;
 volatile uint8_t pitch = 0;
 volatile uint8_t roll = 0;
