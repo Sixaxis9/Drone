@@ -4,7 +4,6 @@
 *  Author: mdotg
 */
 
-
 #define ACCX 97 //a
 #define ACCY 98 //b
 #define ACCZ 99 //c
