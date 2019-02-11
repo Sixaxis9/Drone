@@ -45,9 +45,7 @@ void PID_Pitch(){
 	
 	delta_time_PID = system_tick_MG + 0.0000041*TCNT0 - last_sample_pitch;
 
-
 	pid_i = pid_i+(k_pitch[1]*error_pitch)*delta_time_PID;
-
 
 	pid_d = k_pitch[2]*((error_pitch - error_pitch_previous)/delta_time_PID);
 
@@ -69,9 +67,7 @@ void PID_Roll(){
 	
 	delta_time_PID = system_tick_MG + 0.0000041*TCNT0 - last_sample_roll;
 
-
 	pid_i = pid_i+(k_roll[1]*error_roll)*delta_time_PID;
-
 
 	pid_d = k_roll[2]*((error_roll - error_roll_previous)/delta_time_PID);
 
@@ -93,9 +89,7 @@ void PID_Yaw(){
 	
 	delta_time_PID = system_tick_MG + 0.0000041*TCNT0 - last_sample_yaw;
 
-
 	pid_i = pid_i+(k_yaw[1]*error_yaw)*delta_time_PID;
-
 
 	pid_d = k_yaw[2]*((error_yaw - error_yaw_previous)/delta_time_PID);
 
