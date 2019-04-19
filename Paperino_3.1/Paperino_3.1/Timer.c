@@ -13,7 +13,8 @@
 #define F_CPU 16000000UL
 #endif
 
-volatile float system_tick_MG = 0;
+volatile uint16_t system_tick_MG, system_tick_MG_p = 0;
+volatile uint16_t system_tick_MG_mod, system_tick_MG_p_mod = 0;
 
 void timer_8bit_PWM_init(uint8_t duty){
 	DDRB |= 0b10000000;
@@ -265,23 +266,40 @@ ISR(TIMER3_CAPT_vect){
 }
 
 ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
-	//system_tick_MG = system_tick_MG + 249; //Ogni ms aggiungo 249 al contatore.
-	system_tick_MG = system_tick_MG + 0.001;
-	// 	if (PORTC == 0xff)
-	// 	{
-	// 		PORTC = 0;
-	// 		}else{
-	// 		if (PORTC == 0)
-	// 		{
-	// 			PORTC = 0xff;
-	// 		}
-	// 	}
+	system_tick_MG = system_tick_MG + 1; //every ms
+	system_tick_MG_p = system_tick_MG_p + 248; //adds 248 every ms for more precision
+	
+	if (system_tick_MG_p >= 65287) //if more than 65287 int ovfl -> 0
+	{
+		system_tick_MG_p_mod += 1;
+		system_tick_MG_p = 248- (65535 - system_tick_MG_p);
+	}
+	
+	if (system_tick_MG == 65535)
+	{
+		system_tick_MG_mod += 1; //counter will ovfl normally
+	}
+	
+		 //if (PORTC == 0xff)
+	 	//{
+	 		//PORTC = 0;
+	 		//}else{
+	 		//if (PORTC == 0)
+	 		//{
+	 			//PORTC = 0xff;
+	 		//}
+	 	//}
+}
+
+float time_in_seconds(uint16_t precision_1, uint16_t precision_module_1, uint16_t precision_2, uint16_t precision_module_2){
+	uint16_t carry = precision_module_2-precision_module_1;
+	return (float) ((precision_module_2-precision_module_1*carry) + 248*carry);
 }
 
 void timer_init(){
 	timer1_16bit_PWM_initABC();
 	timer3_16bit_PWM_initA();
 	
-	timer_8bit_CTC_init(249, 64);
+	timer_8bit_CTC_init(248, 64); //1kHz -> 124, divide by two because triggers on both edges
 	timer_8bit_INT_init_COMPA();
 }
