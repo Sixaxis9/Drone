@@ -40,36 +40,10 @@ int main(void)
 	interrupt_init();
 	
 	sei(); //cli(); countermeasure
-	uint16_t end_this, end_that, end_m, end_1, end_2;
 	
-			
-			end_1 = system_tick_MG;
-			end_2 = system_tick_MG_mod;
-			
+	
 	while (1)
-{
-		end_this = system_tick_MG_p;
-		end_m = system_tick_MG_p_mod;
-		_delay_ms(5);
-		//PORTB = 0b00000000;
-		_delay_ms(5);
-		//PORTB = 0b00010000;
-		end_that = time_precision(end_this, end_m)/20;
-		end_1 = time_in_seconds(end_1, end_2);
-		USART_Transmit((uint8_t)end_that);
-		//USART_Transmit('\n');
-		USART_Transmit((uint8_t)end_1);
-		USART_Transmit('\n');
-	}
-		
-
-}
-
-
-
-	/*while (1)
 	{
-	PORTC = 255;
 		aux1 = 50; //for development purpose only
 		if (aux1 > 25) //taking some noise into account
 		{
@@ -81,22 +55,24 @@ int main(void)
 		if (is_started == 1)
 		{
 			read_acceleration(1); //refresh acc reading
-			read_gyroscope(); //refresh gyro reading
+			read_gyroscope(1); //refresh gyro reading
 			
-			computed_acceleration(0);
-			computed_gyroscope(0);
+			computed_acceleration(0); //compute acc reading
+			computed_gyroscope(0); //compute gyro reading
 			
-			compute_angle_acc(0);
-			compute_angle_gyro(0);
-
-			angle_filtered(1);
+			compute_angle_acc(0); //compute angle by acc information
+			compute_angle_gyro(0); //compute angle by gyro information
 			
-			update_PIDs();
-			update_motors();
+			angle_filtered(1); //compute angle filtered btw acc and gyro
+						
+			update_PIDs(); //compute new motor speed values with PID controllers
+			update_motors(); //update motor speeds
 		}
 
-	}*/
+	}
 	
+	
+}
 	
 	void my_delay_ms(int n) {
 		while(n--) {
