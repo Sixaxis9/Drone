@@ -27,7 +27,8 @@ int main(void)
 {
 	DDRD = 0b00000000; //Makes PORTD as Input
 	PORTD = 0b00001111; //Internal Pull Up enabled
-	DDRE &= 0b10111111;
+	DDRB = 0b11111111;
+
 
 	timer_init();
 	
@@ -39,10 +40,37 @@ int main(void)
 	interrupt_init();
 	
 	sei(); //cli(); countermeasure
-
+	uint16_t end_this, end_that, end_m, end_1, end_2;
+	
+			
+			end_1 = system_tick_MG;
+			end_2 = system_tick_MG_mod;
+			
 	while (1)
+{
+		end_this = system_tick_MG_p;
+		end_m = system_tick_MG_p_mod;
+		_delay_ms(5);
+		//PORTB = 0b00000000;
+		_delay_ms(5);
+		//PORTB = 0b00010000;
+		end_that = time_precision(end_this, end_m)/20;
+		end_1 = time_in_seconds(end_1, end_2);
+		USART_Transmit((uint8_t)end_that);
+		//USART_Transmit('\n');
+		USART_Transmit((uint8_t)end_1);
+		USART_Transmit('\n');
+	}
+		
+
+}
+
+
+
+	/*while (1)
 	{
-		//aux1 = 50; //for development purpose only
+	PORTC = 255;
+		aux1 = 50; //for development purpose only
 		if (aux1 > 25) //taking some noise into account
 		{
 			is_started = 1;
@@ -61,11 +89,17 @@ int main(void)
 			compute_angle_acc(0);
 			compute_angle_gyro(0);
 
-			angle_filtered(0);
+			angle_filtered(1);
 			
 			update_PIDs();
 			update_motors();
 		}
 
+	}*/
+	
+	
+	void my_delay_ms(int n) {
+		while(n--) {
+			_delay_ms(1);
+		}
 	}
-}

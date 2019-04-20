@@ -44,7 +44,8 @@ uint8_t TWI_start(){
 	}
 	else{
 		if (I2C_DEBUG)
-		{USART_String(error, 8);
+		{
+			USART_String(error, 8);
 			USART_String(start, 7);
 			USART_Transmit(TWSR & 0xF8);
 			USART_Transmit(cap);
@@ -71,7 +72,8 @@ uint8_t TWI_address(uint8_t mode){ //mode R_1/W_0
 	else
 	{
 		if (I2C_DEBUG)
-		{USART_String(error, 8);
+		{
+			USART_String(error, 8);
 			USART_String(send, 6);
 			USART_Transmit(TWSR & 0xF8);
 			USART_Transmit(cap);
@@ -96,7 +98,8 @@ uint8_t TWI_send(uint8_t data_to_be_sent){
 	else
 	{
 		if (I2C_DEBUG)
-		{USART_String(error, 8);
+		{
+			USART_String(error, 8);
 			USART_String(send, 6);
 			USART_Transmit(TWSR & 0xF8);
 			USART_Transmit(cap);
@@ -118,7 +121,8 @@ uint8_t TWI_receive_ack(){
 	else
 	{
 		if (I2C_DEBUG)
-		{USART_String(error, 8);
+		{
+			USART_String(error, 8);
 			USART_String(receive, 9);
 			USART_Transmit(TWSR & 0xF8);
 			USART_Transmit(cap);
@@ -140,7 +144,8 @@ uint8_t TWI_receive_nack(){
 	else
 	{
 		if (I2C_DEBUG)
-		{USART_String(error, 8);
+		{
+			USART_String(error, 8);
 			USART_String(receive, 9);
 			USART_Transmit(TWSR & 0xF8);
 			USART_Transmit(cap);

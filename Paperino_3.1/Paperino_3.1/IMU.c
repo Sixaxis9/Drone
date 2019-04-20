@@ -292,8 +292,8 @@ void computed_gyroscope(uint8_t print){
 
 void compute_angle_acc(uint8_t print){
 	
-	Angle_X_Acc = (int8_t) (atan(accx/sqrt(accy*accy+accz*accz))*180/3.1415); //transform from radiants to degree
-	Angle_Y_Acc = (int8_t) (atan(accy/sqrt(accx*accx+accz*accz))*180/3.1415); //transform from radiants to degree
+	Angle_X_Acc = (int8_t) (atan(accx/((float)sqrt(accy*accy+accz*accz)))*180/3.1415); //transform from radiants to degree
+	Angle_Y_Acc = (int8_t) (atan(accy/((float)sqrt(accx*accx+accz*accz)))*180/3.1415); //transform from radiants to degree
 	
 	if (print == 1)
 	{
@@ -309,12 +309,12 @@ void compute_angle_gyro(uint8_t print){
 	gyroy = ((float) gyroscope_y / 65);
 	gyroz = ((float) gyroscope_z / 65);
 	
-	float delta_time = system_tick_MG + 0.0000041*TCNT0 - last_sample_gyro;
+	float delta_time = system_tick_MG + 0.0000041*(float)TCNT0 - last_sample_gyro; // check ths
 	
 	Angle_X_Gyro = Angle_X_Gyro + gyrox*delta_time; //transform from radiants to degree
 	Angle_Y_Gyro = Angle_Y_Gyro + gyroy*delta_time;  //transform from radiants to degree
 
-	last_sample_gyro = system_tick_MG + 0.0000041*TCNT0;
+	last_sample_gyro = system_tick_MG + 0.0000041*(float)TCNT0;
 	
 	if (print ==1)
 	{

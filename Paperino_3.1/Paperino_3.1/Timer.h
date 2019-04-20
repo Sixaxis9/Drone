@@ -45,7 +45,13 @@ void timer_8bit_INT_init_OVF();
 
 void timer_8bit_CTC_init(uint8_t freq, uint16_t pres);
 
-extern volatile float system_tick_MG;
+uint16_t time_in_milliseconds(uint16_t precision, uint16_t precision_module);
+uint16_t time_in_seconds(uint16_t precision, uint16_t precision_module);
+uint16_t time_precision(uint16_t precision, uint16_t precision_module);
 
+extern volatile uint16_t system_tick_MG;
+extern volatile uint16_t system_tick_MG_p;
+extern volatile uint16_t system_tick_MG_mod;
+extern volatile uint16_t system_tick_MG_p_mod;
 
 #endif /* TIMER_H_ */
