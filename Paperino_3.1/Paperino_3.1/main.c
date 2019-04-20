@@ -40,37 +40,10 @@ int main(void)
 	interrupt_init();
 	
 	sei(); //cli(); countermeasure
-	uint16_t end_this, end_that, end_m, end_1, end_2;
-	
-			
-			end_1 = system_tick_MG;
-			end_2 = system_tick_MG_mod;
-			
-	while (1)
-{
-		end_this = system_tick_MG_p;
-		end_m = system_tick_MG_p_mod;
-		_delay_ms(5);
-		//PORTB = 0b00000000;
-		_delay_ms(5);
-		//PORTB = 0b00010000;
-		end_that = time_precision(end_this, end_m)/20;
-		end_1 = time_in_seconds(end_1, end_2);
-		USART_Transmit((uint8_t)end_that);
-		//USART_Transmit('\n');
-		USART_Transmit((uint8_t)end_1);
-		USART_Transmit('\n');
-	}
-		
 
-}
-
-
-
-	/*while (1)
+while (1)
 	{
-	PORTC = 255;
-		aux1 = 50; //for development purpose only
+		//aux1 = 50; //for development purpose only
 		if (aux1 > 25) //taking some noise into account
 		{
 			is_started = 1;
@@ -95,7 +68,11 @@ int main(void)
 			update_motors();
 		}
 
-	}*/
+	}
+		
+
+}
+
 	
 	
 	void my_delay_ms(int n) {
