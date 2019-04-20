@@ -271,8 +271,7 @@ ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
 	
 	if (system_tick_MG_p >= 65287) //if more than 65287 int ovfl -> 0
 	{
-		system_tick_MG_p_mod += 1;
-		system_tick_MG_p = 248- (65535 - system_tick_MG_p);
+		system_tick_MG_p_mod += 1; //counter will ovfl normally
 	}
 	
 	if (system_tick_MG == 65535)
@@ -291,9 +290,20 @@ ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
 	 	//}
 }
 
-float time_in_seconds(uint16_t precision_1, uint16_t precision_module_1, uint16_t precision_2, uint16_t precision_module_2){
-	uint16_t carry = precision_module_2-precision_module_1;
-	return (float) ((precision_module_2-precision_module_1*carry) + 248*carry);
+uint16_t time_precision(uint16_t precision, uint16_t precision_module){
+	uint16_t carry = system_tick_MG_p_mod-precision_module;
+	return (system_tick_MG_p + TCNT0) + (65535*carry - precision);
+}
+
+uint16_t time_in_millisecondsseconds(uint16_t precision, uint16_t precision_module){
+	uint16_t carry = system_tick_MG_mod-precision_module;
+	return system_tick_MG + (65535*carry - precision);
+}
+
+uint16_t time_in_seconds(uint16_t precision, uint16_t precision_module){
+	uint16_t carry = system_tick_MG_mod-precision_module;
+	return (system_tick_MG + (65535*carry - precision))/1000;
+
 }
 
 void timer_init(){

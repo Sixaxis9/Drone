@@ -40,18 +40,25 @@ int main(void)
 	interrupt_init();
 	
 	sei(); //cli(); countermeasure
-	float end_this, end_that, end_m;
+	uint16_t end_this, end_that, end_m, end_1, end_2;
+	
+			
+			end_1 = system_tick_MG;
+			end_2 = system_tick_MG_mod;
+			
 	while (1)
-	{
+{
 		end_this = system_tick_MG_p;
 		end_m = system_tick_MG_p_mod;
-		PORTB = 0b00010000;
-		_delay_ms(20);
-		PORTB = 0b00000000;
-		_delay_ms(20);
-		end_that = time_in_seconds(end_this, end_m, system_tick_MG_p, system_tick_MG_p_mod);
-		
-		USART_Transmit(end_that);
+		_delay_ms(5);
+		//PORTB = 0b00000000;
+		_delay_ms(5);
+		//PORTB = 0b00010000;
+		end_that = time_precision(end_this, end_m)/20;
+		end_1 = time_in_seconds(end_1, end_2);
+		USART_Transmit((uint8_t)end_that);
+		//USART_Transmit('\n');
+		USART_Transmit((uint8_t)end_1);
 		USART_Transmit('\n');
 	}
 		
@@ -89,3 +96,10 @@ int main(void)
 		}
 
 	}*/
+	
+	
+	void my_delay_ms(int n) {
+		while(n--) {
+			_delay_ms(1);
+		}
+	}
