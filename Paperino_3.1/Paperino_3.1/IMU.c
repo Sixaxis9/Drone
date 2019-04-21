@@ -33,6 +33,12 @@ int16_t gyroscope_x, gyroscope_y, gyroscope_z;
 
 extern Gyroscope gyroscope;*/
 
+
+float sensitivity_gyro = 131.0;
+uint8_t sensitivity_gyro_register = 0;
+uint16_t sensitivity_acc = 16384;
+uint8_t sensitivity_acc_register = 0;
+
 volatile float accx;
 volatile float accy;
 volatile float accz;
@@ -50,7 +56,7 @@ volatile float Angle_Y_Gyro = 0;
 volatile int16_t acceleration_x, acceleration_y, acceleration_z;
 volatile int16_t gyroscope_x, gyroscope_y, gyroscope_z;
 
-volatile float last_sample_gyro;
+volatile uint16_t last_sample_gyro, last_sample_gyro_mod;
 
 int16_t x_offset_gyro = 0;
 int16_t y_offset_gyro = 0;
@@ -63,17 +69,20 @@ int16_t z_offset_acc = 0;
 int8_t IMU_Init(){
 	uint8_t register_value;
 	
+	select_sensitivity_gyro(2);
+	select_sensitivity_acc(2);
+	
 	register_value = 0b00000010;//config DLPF
 	if (TWI_send_16bit(0x1a, register_value) != 0)
 	{
 		return -1;
 	}
-	register_value = (unsigned char) 0b00001000; //Full scale range gyro, 1000rad/s
+	register_value = sensitivity_gyro_register; //Full scale range gyro, 1000rad/s
 	if (TWI_send_16bit(0x1b, register_value) != 0)
 	{
 		return -1;
 	}
-	register_value = (unsigned char) 0b00001000; //Full scale range gyro, 4g
+	register_value = sensitivity_acc_register; //Full scale range gyro, 4g
 	if (TWI_send_16bit(0x1c, register_value) != 0)
 	{
 		return -1;
@@ -116,25 +125,70 @@ int8_t IMU_Init(){
 		return -2;
 	}
 	
+	_delay_ms(200);
 	
 	read_acceleration(0);
 	x_offset_acc = acceleration_x;
 	y_offset_acc = acceleration_y;
 	z_offset_acc = acceleration_z;
 	
-	read_gyroscope();
+	read_gyroscope(0);
 	x_offset_gyro = gyroscope_x;
 	y_offset_gyro = gyroscope_y;
 	z_offset_gyro = gyroscope_z;
 	
-	// 	read_acceleration(1);
-	//
-	// 	Angle_X_Gyro = Angle_Y_Acc;
-	// 	Angle_Y_Gyro = Angle_X_Acc;
-	
 	return register_value;
 }
 
+uint8_t select_sensitivity_gyro(uint8_t sensitivity){
+	switch (sensitivity){
+		//Full scale: 250 deg/s
+		case 1: sensitivity_gyro = 131.0;
+				sensitivity_gyro_register = 0;
+				break;
+		//Full scale: 500 deg/s
+		case 2: sensitivity_gyro = 65.5;
+				sensitivity_gyro_register = 0b00001000;
+				break;
+		//Full scale: 1000 deg/s
+		case 3: sensitivity_gyro = 32.8;
+				sensitivity_gyro_register = 0b00010000;
+				break;
+		//Full scale: 2000 deg/s
+		case 4: sensitivity_gyro = 16.4;
+				sensitivity_gyro_register = 0b00011000;
+				break;
+		default:
+				USART_Transmit(sensitivity_gyro);
+				USART_Transmit('\n');
+	}
+	return (uint8_t) sensitivity_gyro;
+}
+
+uint8_t select_sensitivity_acc(uint8_t sensitivity){
+	switch (sensitivity){
+		//Full scale: 2 g
+		case 1: sensitivity_acc = 16384;
+				sensitivity_acc_register = 0;
+				break;
+		//Full scale: 4 g
+		case 2: sensitivity_acc = 8192;
+				sensitivity_acc_register = 0b00001000;
+				break;
+		//Full scale: 8 g
+		case 3: sensitivity_acc = 4096;
+				sensitivity_acc_register = 0b00010000;
+				break;
+		//Full scale: 16 g
+		case 4: sensitivity_acc = 2048;
+				sensitivity_acc_register = 0b00011000;
+				break;
+		default:
+				USART_Transmit(sensitivity_acc);
+				USART_Transmit('\n');
+	}
+	return (uint8_t) sensitivity_acc;
+}
 
 int8_t read_acceleration(uint8_t calibrate_acc){
 	
@@ -193,7 +247,7 @@ int8_t read_acceleration(uint8_t calibrate_acc){
 	return 0;
 }
 
-int8_t read_gyroscope(){
+int8_t read_gyroscope(uint8_t calibrate_gyro){
 	
 	if (TWI_start()!= 0){ //masking for prescaler bits|
 		return -1;
@@ -229,9 +283,13 @@ int8_t read_gyroscope(){
 	gyroscope_z = TWI_receive_ack() << 8;
 	gyroscope_z = gyroscope_z | TWI_receive_nack();
 	
-	gyroscope_x = gyroscope_x - x_offset_gyro;
-	gyroscope_y = gyroscope_y - y_offset_gyro;
-	gyroscope_z = gyroscope_z - z_offset_gyro;
+		if (calibrate_gyro == 1)
+		{
+			gyroscope_x = gyroscope_x - x_offset_gyro;
+			gyroscope_y = gyroscope_y - y_offset_gyro;
+			gyroscope_z = gyroscope_z - z_offset_gyro;	
+		}
+
 	
 	TWI_stop();
 	
@@ -263,63 +321,64 @@ int8_t temperature(uint8_t print){
 }
 
 void computed_acceleration(uint8_t print){
-	accx = ((float) acceleration_x / 8192) * 98.1;
-	accy = ((float) acceleration_y / 8192) * 98.1;
-	accz = ((float) acceleration_z / 8192) * 98.1;
+	accx = ((float) acceleration_x / (float)sensitivity_acc) * 98.1;
+	accy = ((float) acceleration_y / (float)sensitivity_acc) * 98.1;
+	accz = ((float) acceleration_z / (float)sensitivity_acc) * 98.1;
 	
 	if (print == 1)
 	{
-		USART_Transmit(accx);
-		USART_Transmit(accy);
-		USART_Transmit(accz);
+		USART_Transmit((uint8_t)accx);
+		USART_Transmit((uint8_t)accy);
+		USART_Transmit((uint8_t)accz);
 		USART_Transmit('\n');
 	}
 }
 
 void computed_gyroscope(uint8_t print){
-	gyrox = ((float) gyroscope_x / 65);
-	gyroy = ((float) gyroscope_y / 65);
-	gyroz = ((float) gyroscope_z / 65);
+	gyrox = ((float) gyroscope_x / sensitivity_gyro);
+	gyroy = ((float) gyroscope_y / sensitivity_gyro);
+	gyroz = ((float) gyroscope_z / sensitivity_gyro);
 	
 	if (print == 1)
 	{
-		USART_Transmit(gyrox);
-		USART_Transmit(gyroy);
-		USART_Transmit(gyroz);
+		USART_Transmit((uint8_t)gyrox);
+		USART_Transmit((uint8_t)gyroy);
+		USART_Transmit((uint8_t)gyroz);
 		USART_Transmit('\n');
 	}
 }
 
 void compute_angle_acc(uint8_t print){
 	
-	Angle_X_Acc = (int8_t) (atan(accx/((float)sqrt(accy*accy+accz*accz)))*180/3.1415); //transform from radiants to degree
-	Angle_Y_Acc = (int8_t) (atan(accy/((float)sqrt(accx*accx+accz*accz)))*180/3.1415); //transform from radiants to degree
+	Angle_X_Acc = (int8_t) (atan(accx/((float)sqrt(accy*accy+accz*accz)))*180.0/3.1415); //transform from radiants to degree
+	Angle_Y_Acc = (int8_t) (atan(accy/((float)sqrt(accx*accx+accz*accz)))*180.0/3.1415); //transform from radiants to degree
 	
 	if (print == 1)
 	{
-		USART_Transmit(Angle_X_Acc);
-		USART_Transmit(Angle_Y_Acc);
+		USART_Transmit((uint8_t)Angle_X_Acc);
+		USART_Transmit((uint8_t)Angle_Y_Acc);
 		USART_Transmit('\n');
 	}
 }
 
 void compute_angle_gyro(uint8_t print){
 	
-	gyrox = ((float) gyroscope_x / 65);
-	gyroy = ((float) gyroscope_y / 65);
-	gyroz = ((float) gyroscope_z / 65);
+	//gyrox = ((float) gyroscope_x / 65);
+	//gyroy = ((float) gyroscope_y / 65);
+	//gyroz = ((float) gyroscope_z / 65);
 	
-	float delta_time = system_tick_MG + 0.0000041*(float)TCNT0 - last_sample_gyro; // check ths
+	float delta_time = time_precision(last_sample_gyro, last_sample_gyro_mod); // check ths
 	
-	Angle_X_Gyro = Angle_X_Gyro + gyrox*delta_time; //transform from radiants to degree
-	Angle_Y_Gyro = Angle_Y_Gyro + gyroy*delta_time;  //transform from radiants to degree
+	Angle_X_Gyro = Angle_X_Gyro + (gyrox*((float)delta_time))/249000.0; //transform from radiants to degree
+	Angle_Y_Gyro = Angle_Y_Gyro + (gyroy*((float)delta_time))/249000.0;  //transform from radiants to degree
 
-	last_sample_gyro = system_tick_MG + 0.0000041*(float)TCNT0;
+	last_sample_gyro = system_tick_MG_p;
+	last_sample_gyro_mod = system_tick_MG_p_mod;
 	
-	if (print ==1)
+	if (print == 1)
 	{
-		USART_Transmit(Angle_X_Gyro);
-		USART_Transmit(-Angle_Y_Gyro);
+		USART_Transmit((uint8_t)-Angle_Y_Gyro);
+		USART_Transmit((uint8_t)Angle_X_Gyro);
 		USART_Transmit('\n');
 	}
 }
@@ -339,18 +398,17 @@ void compute_angle_gyro(uint8_t print){
 volatile int8_t AngleX;
 volatile int8_t AngleY;
 
-float x_acc_k, y_acc_k, z_acc_k;
-float x_gyro_k, y_gyro_k, z_gyro_k;
-
+float acc_contribution = 0.1;
 
 void angle_filtered(uint8_t print){
-	AngleX = 0.05*Angle_X_Acc - 0.95*Angle_Y_Gyro; //Right math, wrong variable names - to correct in future version
-	AngleY = 0.05*Angle_Y_Acc + 0.95*Angle_X_Gyro; //Right math, wrong variable names - to correct in future version
+	AngleX = acc_contribution*Angle_X_Acc - (1-acc_contribution)*Angle_Y_Gyro; //Right math, wrong variable names - to correct in future version
+	AngleY = acc_contribution*Angle_Y_Acc + (1-acc_contribution)*Angle_X_Gyro; //Right math, wrong variable names - to correct in future version
 
 	if (print == 1)
 	{
-		USART_Transmit(AngleX);
-		USART_Transmit(AngleY);
+		USART_Transmit((uint8_t)AngleX);
+		USART_Transmit((uint8_t)AngleY);
+		USART_Transmit('\n');
 	}
 	
 }
