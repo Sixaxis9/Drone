@@ -6,6 +6,7 @@
 
 #include <avr/interrupt.h>
 #include "Timer.h"
+#include "USART.h"
 
 
 volatile uint8_t throttle = 0;
@@ -16,10 +17,11 @@ volatile uint8_t aux1 = 0;
 volatile uint8_t aux2 = 0;
 volatile uint8_t aux3 = 0;
 
-volatile float int_period = 0;
-volatile float int_period_1 = 0;
-
-volatile float period = 0;
+volatile uint16_t ch_1_rising = 0;
+volatile uint16_t ch_1_rising_mod = 0;
+volatile uint16_t ch_1_falling = 0;
+volatile uint16_t ch_1_falling_mod = 0;
+volatile uint32_t period = 0;
 
 volatile uint8_t is_started = 0;
 
@@ -208,23 +210,28 @@ void Pin_Change_Disen(){
 
 ISR(INT6_vect){
 	if (flag_rx  == 0)
-	{
+	{		
+		//period = time_precision(ch_1_rising, ch_1_rising_mod);
+		period = 2*249;
 		
-		period = (system_tick_MG + 0.000004*TCNT0 - int_period);
-
-		int_period = system_tick_MG + 0.000004*TCNT0; //To count the period of the wave in ms
+		ch_1_rising = system_tick_MG_p;
+		ch_1_rising_mod = system_tick_MG_p_mod;
+		
+		flag_rx = 1;
 		
 		Interrupt_Init_Falling_INT6();
-
-		flag_rx = 1;
-
-		}else{
 		
-		throttle = ((system_tick_MG  - int_period + 0.000004*TCNT0)*100)/period;
+		}else{ 
+		throttle = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period)*100;
 		
+		//USART_Transmit((uint8_t)((float)time_precision(ch_1_rising, ch_1_rising_mod)/24.9));
+		
+		//USART_Transmit('\n');
+		
+		flag_rx = 0;
+
 		Interrupt_Init_Rising_INT6();
 
-		flag_rx = 0;
 	}
 
 }
@@ -232,7 +239,7 @@ ISR(INT6_vect){
 ISR(PCINT0_vect){
 	//check the ports, store before value, confront with actual
 	//store new value
-	
+	/*
 	uint8_t changedbits;
 	uint8_t intreading = PINB;
 	changedbits = intreading ^ portbhistory;
@@ -295,12 +302,11 @@ ISR(PCINT0_vect){
 		
 		case 128: //pcint7 changed
 		break;
-	}
+	}*/
 }
 
 void interrupt_init(){
 	Interrupt_Init_Rising_INT6();
-	Int_6_En();
 	
-	Pin_Change_En(0b10000000);
+	//Pin_Change_En(0b10000000);
 }

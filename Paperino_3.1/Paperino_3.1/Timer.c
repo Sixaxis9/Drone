@@ -18,7 +18,7 @@ void timer_init(){
 	timer1_16bit_PWM_initABC();
 	timer3_16bit_PWM_initA();
 	
-	timer_8bit_CTC_init(248, 64); //1kHz -> 124, divide by two because triggers on both edges
+	timer_8bit_CTC_init(249, 64); //1kHz -> 124, divide by two because triggers on both edges
 	timer_8bit_INT_init_COMPA();
 }
 
@@ -82,9 +82,9 @@ void timer_8bit_INT_init_OVF(){
 
 ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
 	system_tick_MG = system_tick_MG + 1; //every ms
-	system_tick_MG_p = system_tick_MG_p + 248; //adds 248 every ms for more precision
+	system_tick_MG_p = system_tick_MG_p + 249; //adds 249 every ms for more precision
 	
-	if (system_tick_MG_p >= 65287) //if more than 65287 int ovfl -> 0
+	if (system_tick_MG_p >= 65286) //if more than 65287 int ovfl -> 0
 	{
 		system_tick_MG_p_mod += 1; //counter will ovfl normally
 	}
@@ -94,29 +94,29 @@ ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
 		system_tick_MG_mod += 1; //counter will ovfl normally
 	}
 	
-			if (PORTC == 0xff)
+			if (PORTC == 0b10000000)
 			{
 				PORTC = 0;
 			}else{
 			if (PORTC == 0)
 			{
-				PORTC = 0xff;
+				PORTC = 0b10000000;
 			}
 	}
 	
 }
 
-uint16_t time_precision(uint16_t precision, uint16_t precision_module){
+uint32_t time_precision(uint16_t precision, uint16_t precision_module){
 	uint16_t carry = system_tick_MG_p_mod-precision_module;
 	return (system_tick_MG_p + TCNT0) + (65535*carry - precision);
 }
 
-uint16_t time_in_millisecondsseconds(uint16_t precision, uint16_t precision_module){
+uint32_t time_in_millisecondsseconds(uint16_t precision, uint16_t precision_module){
 	uint16_t carry = system_tick_MG_mod-precision_module;
 	return system_tick_MG + (65535*carry - precision);
 }
 
-uint16_t time_in_seconds(uint16_t precision, uint16_t precision_module){
+uint32_t time_in_seconds(uint16_t precision, uint16_t precision_module){
 	uint16_t carry = system_tick_MG_mod-precision_module;
 	return (system_tick_MG + (65535*carry - precision))/1000;
 

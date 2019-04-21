@@ -54,10 +54,10 @@ extern volatile uint8_t aux1;
 extern volatile uint8_t aux2;
 extern volatile uint8_t aux3;
 
-extern volatile float int_period;
-extern volatile float int_period_1;
+volatile uint16_t ch_1_rising, ch_1_rising_mod;
+volatile uint16_t ch_1_falling, ch_1_falling_mod;
 
-extern volatile float period;
+extern volatile uint32_t period;
 
 extern volatile uint8_t flag_rx;
 
