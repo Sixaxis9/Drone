@@ -65,8 +65,8 @@ int main(void)
 			
 			angle_filtered(0); //compute angle filtered btw acc and gyro
 			
-			USART_Transmit(throttle);
-			USART_Transmit('\n');
+			//USART_Transmit(throttle);
+			//USART_Transmit('\n');
 
 			update_PIDs(); //compute new motor speed values with PID controllers
 			update_motors(); //update motor speeds

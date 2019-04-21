@@ -224,10 +224,6 @@ ISR(INT6_vect){
 		}else{ 
 		throttle = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period)*100;
 		
-		//USART_Transmit((uint8_t)((float)time_precision(ch_1_rising, ch_1_rising_mod)/24.9));
-		
-		//USART_Transmit('\n');
-		
 		flag_rx = 0;
 
 		Interrupt_Init_Rising_INT6();
@@ -239,7 +235,7 @@ ISR(INT6_vect){
 ISR(PCINT0_vect){
 	//check the ports, store before value, confront with actual
 	//store new value
-	/*
+	
 	uint8_t changedbits;
 	uint8_t intreading = PINB;
 	changedbits = intreading ^ portbhistory;
@@ -266,7 +262,7 @@ ISR(PCINT0_vect){
 		//SCK - Yaw
 		if (flag_rx == 1)
 		{
-			yaw = ((system_tick_MG  - int_period + 0.000004*TCNT0)*100)/period;
+			yaw = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
 		}
 		break;
 
@@ -274,7 +270,7 @@ ISR(PCINT0_vect){
 		//MOSI - Roll
 		if (flag_rx == 1)
 		{
-			roll = ((system_tick_MG  - int_period + 0.000004*TCNT0)*100)/period;
+			roll = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
 		}
 		break;
 
@@ -282,7 +278,7 @@ ISR(PCINT0_vect){
 		//MISO - Pitch
 		if (flag_rx == 1)
 		{
-			pitch = ((system_tick_MG  - int_period + 0.000004*TCNT0)*100)/period;
+			pitch = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
 		}
 		break;
 
@@ -290,7 +286,7 @@ ISR(PCINT0_vect){
 		//PB4: AUX1
 		if (flag_rx == 1)
 		{
-			aux1 = ((system_tick_MG  - int_period + 0.000004*TCNT0)*100)/period;
+			aux1 = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
 		}
 		break;
 
@@ -302,7 +298,7 @@ ISR(PCINT0_vect){
 		
 		case 128: //pcint7 changed
 		break;
-	}*/
+	}
 }
 
 void interrupt_init(){
