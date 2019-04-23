@@ -60,14 +60,24 @@ int main(void)
 			computed_acceleration(0); //compute acc reading
 			computed_gyroscope(0); //compute gyro reading
 			
-			USART_Transmit(period);
+			USART_Transmit((uint8_t)(period/10.0));
 
 			compute_angle_acc(0); //compute angle by acc information
-			compute_angle_gyro(1); //compute angle by gyro information
+			compute_angle_gyro(0); //compute angle by gyro information
+			USART_Transmit(throttle);
+			angle_filtered(1); //compute angle filtered btw acc and gyro*/
+
+		if (PORTC == 0b10000000)
+		{
+			PORTC = 0;
+			}else{
+			if (PORTC == 0)
+			{
+				PORTC = 0b10000000;
+			}
+		}
 			
-			angle_filtered(0); //compute angle filtered btw acc and gyro*/
 			
-			//USART_Transmit(throttle);
 			//USART_Transmit('\n');
 
 			//pdate_PIDs(); //compute new motor speed values with PID controllers

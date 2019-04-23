@@ -46,13 +46,13 @@ void Pin_Change_En(uint8_t reg);
 
 void Pin_Change_Disen();
 
-extern volatile uint8_t throttle;
-extern volatile uint8_t pitch;
-extern volatile uint8_t roll;
-extern volatile uint8_t yaw;
-extern volatile uint8_t aux1;
-extern volatile uint8_t aux2;
-extern volatile uint8_t aux3;
+extern volatile int8_t throttle;
+extern volatile int8_t pitch;
+extern volatile int8_t roll;
+extern volatile int8_t yaw;
+extern volatile int8_t aux1;
+extern volatile int8_t aux2;
+extern volatile int8_t aux3;
 
 volatile uint16_t ch_1_rising, ch_1_rising_mod;
 volatile uint16_t ch_1_falling, ch_1_falling_mod;
