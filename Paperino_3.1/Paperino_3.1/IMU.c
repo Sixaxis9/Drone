@@ -57,6 +57,7 @@ volatile int16_t acceleration_x, acceleration_y, acceleration_z;
 volatile int16_t gyroscope_x, gyroscope_y, gyroscope_z;
 
 volatile uint16_t last_sample_gyro, last_sample_gyro_mod;
+volatile uint16_t delta_time = 0;
 
 int16_t x_offset_gyro = 0;
 int16_t y_offset_gyro = 0;
@@ -367,14 +368,10 @@ void compute_angle_gyro(uint8_t print){
 	//gyroy = ((float) gyroscope_y / 65.5);
 	//gyroz = ((float) gyroscope_z / 65.5);
 	
-	float delta_time = time_precision(last_sample_gyro, last_sample_gyro_mod); // check ths
-	if (gyrox>3 || gyroy > 3)
-	{		
-		Angle_X_Gyro = Angle_X_Gyro + (gyrox*(delta_time/249000.0)); //transform from radiants to degree
-		Angle_Y_Gyro = Angle_Y_Gyro + (gyroy*(delta_time/249000.0));  //transform from radiants to degree
-	}
-	
-	USART_Transmit((uint8_t)(delta_time/10.0));
+	delta_time = time_precision(last_sample_gyro, last_sample_gyro_mod); // check ths
+
+		Angle_X_Gyro = Angle_X_Gyro + (gyrox*((float)delta_time)/249000.0); //transform from radiants to degree
+		Angle_Y_Gyro = Angle_Y_Gyro + (gyroy*((float)delta_time)/249000.0);  //transform from radiants to degree
 	
 	last_sample_gyro = system_tick_MG_p + TCNT0;
 	last_sample_gyro_mod = system_tick_MG_p_mod;

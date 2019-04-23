@@ -9,19 +9,20 @@
 #include "USART.h"
 
 
-volatile uint8_t throttle = 0;
-volatile uint8_t pitch = 0;
-volatile uint8_t roll = 0;
-volatile uint8_t yaw = 0;
-volatile uint8_t aux1 = 0;
-volatile uint8_t aux2 = 0;
-volatile uint8_t aux3 = 0;
+volatile int8_t throttle = 0;
+volatile int8_t pitch = 0;
+volatile int8_t roll = 0;
+volatile int8_t yaw = 0;
+volatile int8_t aux1 = 0;
+volatile int8_t aux2 = 0;
+volatile int8_t aux3 = 0;
 
 volatile uint16_t ch_1_rising = 0;
 volatile uint16_t ch_1_rising_mod = 0;
 volatile uint16_t ch_1_falling = 0;
 volatile uint16_t ch_1_falling_mod = 0;
 volatile uint32_t period = 0;
+volatile uint16_t period1 = 0;
 
 volatile uint8_t is_started = 0;
 
@@ -212,29 +213,29 @@ ISR(INT6_vect){
 	if (flag_rx  == 0)
 	{		
 		period = time_precision(ch_1_rising, ch_1_rising_mod);
-		//period = 2*249;
-		//USART_Transmit(period);
-		//USART_Transmit('\n');
+		
+		period1 = 2*249;
+		
 		ch_1_rising = system_tick_MG_p + (uint16_t)TCNT0;
 		ch_1_rising_mod = system_tick_MG_p_mod;
 		
 		flag_rx = 1;
 		
-		
-		if (PORTC == 0b10000000)
-		{
-			PORTC = 0;
-			}else{
-			if (PORTC == 0)
-			{
-				PORTC = 0b10000000;
-			}
-		}
-		
 		Interrupt_Init_Falling_INT6();
 		
 		}else{ 
-		throttle = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period)*100;
+		
+		throttle = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
+		
+		if (throttle<0)
+		{
+			throttle = 0;
+		}else{
+			if (throttle > 100)
+			{
+				throttle = 100;
+			}
+		}
 		
 		flag_rx = 0;
 
