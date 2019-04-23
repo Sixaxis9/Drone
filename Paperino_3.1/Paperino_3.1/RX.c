@@ -38,7 +38,6 @@ void Int_0_En(){
 	EIMSK |= (1 <<	INT0);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Int_1_En(){
@@ -50,7 +49,6 @@ void Int_1_En(){
 	EIMSK |= (1 <<	INT1);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Int_2_En(){
@@ -62,7 +60,6 @@ void Int_2_En(){
 	EIMSK |= (1 <<	INT2);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Int_3_En(){
@@ -74,7 +71,6 @@ void Int_3_En(){
 	EIMSK |= (1 <<	INT3);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Int_6_En(){
@@ -86,7 +82,6 @@ void Int_6_En(){
 	EIMSK |= (1 <<	INT6);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Rising_INT0(){
@@ -97,7 +92,6 @@ void Interrupt_Init_Rising_INT0(){
 	EICRA |= (1 << ISC01) | (1 << ISC00);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Rising_INT1(){
@@ -108,7 +102,6 @@ void Interrupt_Init_Rising_INT1(){
 	EICRA |= (1 << ISC11) | (1 << ISC10);
 	
 	SREG = sreg;
-	sei();
 }
 void Interrupt_Init_Rising_INT2(){
 	uint8_t sreg;
@@ -118,7 +111,6 @@ void Interrupt_Init_Rising_INT2(){
 	EICRA |= (1 << ISC21) | (1 << ISC20);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Rising_INT3(){
@@ -129,7 +121,6 @@ void Interrupt_Init_Rising_INT3(){
 	EICRA |= (1 << ISC31) | (1 << ISC30);
 	
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Rising_INT6(){
@@ -140,8 +131,8 @@ void Interrupt_Init_Rising_INT6(){
 	EIFR |= (0 << INTF3);
 
 	EICRB |= (1 << ISC61) | (1 << ISC60);
+	Int_6_En();
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Falling_INT0(){
@@ -152,8 +143,8 @@ void Interrupt_Init_Falling_INT0(){
 	EIFR |= (1 << INTF0);
 	EICRA &= ~(1 << ISC00);
 
+	Int_0_En();
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Falling_INT1(){
@@ -164,8 +155,8 @@ void Interrupt_Init_Falling_INT1(){
 	EIFR |= (1 << INTF1);
 	EICRA &= ~(1 << ISC10);
 
+	Int_1_En();
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Falling_INT2(){
@@ -176,8 +167,8 @@ void Interrupt_Init_Falling_INT2(){
 	EIFR |= (1 << INTF2);
 	EICRA &= ~(1 << ISC20);
 
+	Int_2_En();
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Falling_INT3(){
@@ -187,9 +178,10 @@ void Interrupt_Init_Falling_INT3(){
 	
 	EIFR |= (1 << INTF3);
 	EICRA &= ~(1 << ISC30);
+
+	Int_3_En();
 	
 	SREG = sreg;
-	sei();
 }
 
 void Interrupt_Init_Falling_INT6(){
@@ -201,7 +193,6 @@ void Interrupt_Init_Falling_INT6(){
 	EICRB &= ~(1 << ISC60);
 	Int_6_En();
 	SREG = sreg;
-	sei();
 }
 
 void Pin_Change_En(uint8_t reg){//Parameter: bit activated
@@ -215,25 +206,34 @@ void Pin_Change_Disen(){
 }
 
 
+
+
 ISR(INT6_vect){
-	
-	
 	if (flag_rx  == 0)
 	{		
-		PORTC = 0b10000000;
 		period = time_precision(ch_1_rising, ch_1_rising_mod);
-		period = 2*249;
-		
-		ch_1_rising = system_tick_MG_p;
+		//period = 2*249;
+		//USART_Transmit(period);
+		//USART_Transmit('\n');
+		ch_1_rising = system_tick_MG_p + (uint16_t)TCNT0;
 		ch_1_rising_mod = system_tick_MG_p_mod;
 		
 		flag_rx = 1;
-				
+		
+		
+		if (PORTC == 0b10000000)
+		{
+			PORTC = 0;
+			}else{
+			if (PORTC == 0)
+			{
+				PORTC = 0b10000000;
+			}
+		}
+		
 		Interrupt_Init_Falling_INT6();
 		
-		}else{
-		PORTC = 0;
-		
+		}else{ 
 		throttle = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period)*100;
 		
 		flag_rx = 0;
@@ -314,7 +314,6 @@ ISR(PCINT0_vect){
 }
 
 void interrupt_init(){
-	Int_6_En();
 	Interrupt_Init_Rising_INT6();
 	
 	//Pin_Change_En(0b10000000);

@@ -363,16 +363,20 @@ void compute_angle_acc(uint8_t print){
 
 void compute_angle_gyro(uint8_t print){
 	
-	//gyrox = ((float) gyroscope_x / 65);
-	//gyroy = ((float) gyroscope_y / 65);
-	//gyroz = ((float) gyroscope_z / 65);
+	//gyrox = ((float) gyroscope_x / 65.5);
+	//gyroy = ((float) gyroscope_y / 65.5);
+	//gyroz = ((float) gyroscope_z / 65.5);
 	
 	float delta_time = time_precision(last_sample_gyro, last_sample_gyro_mod); // check ths
+	if (gyrox>3 || gyroy > 3)
+	{		
+		Angle_X_Gyro = Angle_X_Gyro + (gyrox*(delta_time/249000.0)); //transform from radiants to degree
+		Angle_Y_Gyro = Angle_Y_Gyro + (gyroy*(delta_time/249000.0));  //transform from radiants to degree
+	}
 	
-	Angle_X_Gyro = Angle_X_Gyro + (gyrox*((float)delta_time))/249000.0; //transform from radiants to degree
-	Angle_Y_Gyro = Angle_Y_Gyro + (gyroy*((float)delta_time))/249000.0;  //transform from radiants to degree
-
-	last_sample_gyro = system_tick_MG_p;
+	USART_Transmit((uint8_t)(delta_time/10.0));
+	
+	last_sample_gyro = system_tick_MG_p + TCNT0;
 	last_sample_gyro_mod = system_tick_MG_p_mod;
 	
 	if (print == 1)
