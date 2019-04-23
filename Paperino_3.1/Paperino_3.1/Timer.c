@@ -94,15 +94,6 @@ ISR(TIMER0_COMPA_vect){ //scatta 1 volta al milli secondo
 		system_tick_MG_mod += 1; //counter will ovfl normally
 	}
 	
-			if (PORTC == 0b10000000)
-			{
-				PORTC = 0;
-			}else{
-			if (PORTC == 0)
-			{
-				PORTC = 0b10000000;
-			}
-	}
 	
 }
 

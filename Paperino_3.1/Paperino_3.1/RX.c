@@ -211,13 +211,25 @@ void Pin_Change_Disen(){
 ISR(INT6_vect){
 	if (flag_rx  == 0)
 	{		
-		//period = time_precision(ch_1_rising, ch_1_rising_mod);
-		period = 2*249;
-		
-		ch_1_rising = system_tick_MG_p;
+		period = time_precision(ch_1_rising, ch_1_rising_mod);
+		//period = 2*249;
+		//USART_Transmit(period);
+		//USART_Transmit('\n');
+		ch_1_rising = system_tick_MG_p + (uint16_t)TCNT0;
 		ch_1_rising_mod = system_tick_MG_p_mod;
 		
 		flag_rx = 1;
+		
+		
+		if (PORTC == 0b10000000)
+		{
+			PORTC = 0;
+			}else{
+			if (PORTC == 0)
+			{
+				PORTC = 0b10000000;
+			}
+		}
 		
 		Interrupt_Init_Falling_INT6();
 		
