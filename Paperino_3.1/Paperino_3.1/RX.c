@@ -207,6 +207,18 @@ void Pin_Change_Disen(){
 }
 
 
+int8_t limiter(int8_t channel){
+	if (channel<0)
+	{
+		channel = 0;
+		}else{
+		if (channel > 100)
+		{
+			channel = 100;
+		}
+	}
+	return channel;
+}
 
 
 ISR(INT6_vect){
@@ -227,15 +239,7 @@ ISR(INT6_vect){
 		
 		throttle = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
 		
-		if (throttle<0)
-		{
-			throttle = 0;
-		}else{
-			if (throttle > 100)
-			{
-				throttle = 100;
-			}
-		}
+		throttle = limiter(throttle);
 		
 		flag_rx = 0;
 
@@ -253,15 +257,6 @@ ISR(PCINT0_vect){
 	uint8_t intreading = PINB;
 	changedbits = intreading ^ portbhistory;
 	portbhistory = intreading;
-	if (flag_rx == 1)
-	{
-
-	}
-	if (changedbits == 0b10000000 ||  changedbits == 0b10000000)
-	{
-		
-	}
-	
 
 	switch(changedbits){
 
@@ -273,34 +268,31 @@ ISR(PCINT0_vect){
 
 		case 2: //pcint1 changed
 		//SCK - Yaw
-		if (flag_rx == 1)
-		{
-			yaw = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
-		}
+			yaw = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
+			USART_Transmit('\n');
+			yaw = limiter(yaw);
 		break;
 
 		case 4: //pcint2 changed
 		//MOSI - Roll
-		if (flag_rx == 1)
-		{
-			roll = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
-		}
+			roll = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
+			USART_Transmit('\n');
+			roll = limiter(roll);
 		break;
 
 		case 8:  //pcint3 changed
 		//MISO - Pitch
-		if (flag_rx == 1)
-		{
-			pitch = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
-		}
+			pitch = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
+			USART_Transmit('\n');
+			pitch = limiter(pitch);
 		break;
 
 		case 16: //pcint4 changed
 		//PB4: AUX1
-		if (flag_rx == 1)
-		{
-			aux1 = ((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249))/period;
-		}
+
+			aux1 = (int8_t) (((float)(time_precision(ch_1_rising, ch_1_rising_mod)-249)/(float)period1)*200);
+			USART_Transmit('\n');
+			aux1 = limiter(aux1);
 		break;
 
 		case 32: //pcint5 changed
@@ -317,5 +309,5 @@ ISR(PCINT0_vect){
 void interrupt_init(){
 	Interrupt_Init_Rising_INT6();
 	
-	//Pin_Change_En(0b10000000);
+	Pin_Change_En(255);
 }

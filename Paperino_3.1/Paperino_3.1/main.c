@@ -65,6 +65,12 @@ int main(void)
 			compute_angle_acc(0); //compute angle by acc information
 			compute_angle_gyro(0); //compute angle by gyro information
 			USART_Transmit(throttle);
+
+			/*USART_Transmit(pitch);
+			USART_Transmit(roll);
+			USART_Transmit(yaw);
+			USART_Transmit(aux1);*/
+
 			angle_filtered(1); //compute angle filtered btw acc and gyro*/
 
 		if (PORTC == 0b10000000)
