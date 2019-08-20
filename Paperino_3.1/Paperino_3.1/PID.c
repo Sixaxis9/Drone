@@ -111,14 +111,11 @@ void update_PIDs(){
 		motor2 = throttle + PID[0] + PID[1] - PID[2];
 		motor3 = throttle - PID[0] + PID[1] + PID[2];
 		motor4 = throttle - PID[0] - PID[1] - PID[2];
-		
 		}else{
-		
 		motor1 = 5;
 		motor2 = 5;
 		motor3 = 5;
 		motor4 = 5;
-	
 	}
 }
 

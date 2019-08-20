@@ -41,7 +41,6 @@ void Interrupt_Init_Falling_INT3();
 
 void Interrupt_Init_Falling_INT6();
 
-int8_t limiter(int8_t channel);
 
 void Pin_Change_En(uint8_t reg);
 

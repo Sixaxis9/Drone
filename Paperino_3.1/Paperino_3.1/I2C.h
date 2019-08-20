@@ -12,7 +12,7 @@
 #include <util/twi.h>
 
 
-void TWI_init();
+void TWI_init(char address_temp, unsinged long speed_temp);
 uint8_t TWI_start();
 uint8_t TWI_address(uint8_t mode);
 uint8_t TWI_send(uint8_t data_to_be_sent);
