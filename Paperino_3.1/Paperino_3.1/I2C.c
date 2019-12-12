@@ -17,11 +17,11 @@
 volatile unsigned long F_SCL = 400000;
 volatile char address = 0x68;
 
-char error[8] = {'E', 'r', 'r', 'o', 'r', ' ', ':', ' '};
-char start[7] = {'s', 't', 'a', 'r', 't', ':', ' '};
-char send[6] = {'s', 'e', 'n', 'd', ':', ' '};
-char receive[9] = {'r', 'e', 'c', 'e', 'i', 'v', 'e', ':', ' '};
-char cap = '\n';
+const char error[8] = {'E', 'r', 'r', 'o', 'r', ' ', ':', ' '};
+const char start[7] = {'s', 't', 'a', 'r', 't', ':', ' '};
+const char send[6] = {'s', 'e', 'n', 'd', ':', ' '};
+const char receive[9] = {'r', 'e', 'c', 'e', 'i', 'v', 'e', ':', ' '};
+const char cap = '\n';
 
 void TWI_init(char address_temp, unsinged long speed_temp){
 	address = address_temp;
