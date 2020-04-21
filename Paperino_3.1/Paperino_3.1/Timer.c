@@ -14,14 +14,6 @@
 #endif
 
 
-void timer_init(){
-	timer1_16bit_PWM_initABC();
-	timer3_16bit_PWM_initA();
-	
-	timer_8bit_CTC_init(249, 64); //1kHz -> 124, divide by two because triggers on both edges
-	timer_8bit_INT_init_COMPA();
-}
-
 
 /* TIMER 0 - 8 BIT ***********************************************************************/
 
@@ -152,10 +144,10 @@ void timer1_16bit_PWM_A(uint8_t duty, uint16_t fduty, uint16_t pres){
 	cli();
 	//ICR1H = freq >> 8; //SET FREQUENCY
 	//ICR1L = freq;
-	ICR1 = freq;
-	OCR1A = dutyc;
 	//OCR1AH = dutyc >> 8; //SET DUTY
 	//OCR1AL = dutyc;
+	ICR1 = freq;
+	OCR1A = dutyc;
 	SREG = sreg;
 }
 
@@ -180,7 +172,6 @@ void timer1_16bit_PWM_C(uint8_t duty, uint16_t fduty, uint16_t pres){
 	ICR1 = freq;
 	OCR1C = dutyc;
 	SREG = sreg;
-
 }
 
 void timer1_16bit_PWM_ABC(uint8_t duty, uint8_t duty1, uint8_t duty2, uint16_t fduty, uint16_t pres){
@@ -203,7 +194,6 @@ void timer1_16bit_PWM_ABC(uint8_t duty, uint8_t duty1, uint8_t duty2, uint16_t f
 	OCR1B = dutyc1;
 	OCR1C = dutyc2;
 	SREG = sreg;
-	
 }
 
 uint16_t timer_1_setCLK(uint16_t pres){

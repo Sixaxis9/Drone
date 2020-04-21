@@ -11,8 +11,13 @@
 #include <stdint.h>
 #include <avr/io.h>
 
-void timer_init();
-
+#define timer_init(){\
+        timer1_16bit_PWM_initABC();\
+        timer3_16bit_PWM_initA();\
+        timer_8bit_CTC_init(249, 64);\
+        timer_8bit_INT_init_COMPA();\
+    }
+    
 void timer_8bit_PWM_init(uint8_t duty);
 void timer_8bit_PWM_setFreq(uint8_t freq);
 
